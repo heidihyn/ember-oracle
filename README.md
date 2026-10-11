@@ -22,8 +22,9 @@ Open http://localhost:8787. The banner at the top says which mode you are in, an
 
 ## Deploy on GitHub Pages
 
-`.github/workflows/pages.yml` builds `public/index.html` and publishes `public/` on every push to
-`main`. Turn it on once under **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+Pages serves the `main` branch from the repo root (**Settings → Pages → Deploy from a branch → main / root**).
+The root `index.html` is generated from `public/app.html`, so run `npm run build` and commit it after
+changing the page.
 
 GitHub Pages only serves static files, so there is nowhere to keep the Arcade key and the site runs
 in sample data mode. For live designs and orders, use the Vercel setup below (or the local server).
@@ -77,4 +78,4 @@ The key stays on the server. The browser only talks to `/api/health`, `/api/desi
 - `server.mjs`: local server.
 - `api/proxy.mjs` and `vercel.json`: Vercel hosting.
 - `netlify/functions/api.mjs` and `netlify.toml`: Netlify hosting.
-- `.github/workflows/pages.yml`: GitHub Pages (sample data mode).
+- `index.html` and `.nojekyll`: GitHub Pages (sample data mode).

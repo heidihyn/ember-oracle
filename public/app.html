@@ -508,7 +508,7 @@ function buildTalismans() {
       <p>Each one is designed live from your reading. Choose the one that speaks to you, and the orb will place your order.</p></div>
     <div class="talismans">${state.options.map(o => `
       <article class="talisman" id="t-${o.key}">
-        <div class="view"><canvas width="480" height="480"></canvas><span class="badge">${state.live ? 'Arcade design' : 'Sample render'}</span><div class="forging">Forging your ${o.piece}…</div></div>
+        <div class="view"><canvas width="480" height="480"></canvas><span class="badge">${state.live ? 'Designing with Arcade' : 'Sample render'}</span><div class="forging">Forging your ${o.piece}…</div></div>
         <div><span class="intent">For ${esc(o.intent)}</span><h3>${esc(o.name)}</h3><div class="spec">${esc(o.stone)} · ${esc(o.metal)} · ${o.piece}</div></div>
         <div style="display:grid;gap:10px;align-content:start"><p class="why">${esc(o.why)}</p><details class="prompt"><summary>Prompt sent to Arcade</summary><p>${esc(o.prompt)}</p></details></div>
         <div class="foot"><span class="price" data-price>Pricing…</span><button class="btn" type="button" data-choose="${o.key}" disabled>Choose this piece</button></div>
@@ -529,9 +529,15 @@ async function designOne(o) {
   try {
     const d = state.live ? await liveDesign(o) : await sampleDesign(o);
     state.designs[o.key] = d;
+    const badge = card.querySelector('.badge');
     if (d.imageUrl) {
-      const img = new Image(); img.alt = `${o.name}, designed by Arcade`; img.src = d.imageUrl;
-      img.onload = () => card.querySelector('.view canvas').replaceWith(img);
+      badge.textContent = 'Loading Arcade design…';
+      loadImage(d.imageUrl, `${o.name}, designed by Arcade`).then(img => {
+        card.querySelector('.view canvas, .view img').replaceWith(img);
+        badge.textContent = 'Arcade design';
+      }).catch(() => { badge.textContent = 'Arcade image failed to load · drawn preview'; });
+    } else if (state.live) {
+      badge.textContent = 'Arcade sent no image · drawn preview';
     }
     if (d.title && state.live) card.querySelector('.spec').textContent = `${d.title} · ${o.stone}`;
     card.querySelector('[data-price]').innerHTML = `${esc(money(d.unitPrice))}<small>${state.live ? '' : 'sample'}</small>`;
@@ -543,6 +549,14 @@ async function designOne(o) {
     p.querySelector('button').onclick = () => designOne(o);
     card.querySelector('.foot').before(p);
   } finally { card.querySelector('.forging').hidden = true; }
+}
+
+function loadImage(src, alt) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.alt = alt; img.referrerPolicy = 'no-referrer'; img.decoding = 'async';
+    img.onload = () => resolve(img); img.onerror = reject; img.src = src;
+  });
 }
 
 async function api(path, body, quiet) {
@@ -587,24 +601,42 @@ function choose(key) {
   el.hidden = false;
   el.innerHTML = `<div class="stage-head"><span class="eyebrow">Your choice</span><h2>Claim the ${esc(o.name)}</h2></div>
     <div class="order">
-      <div id="orderView"></div>
+      <div id="orderView" style="display:grid;gap:10px"></div>
       <div>
         <dl>
           <dt>Piece</dt><dd>${esc(d.title || o.name)}</dd>
-          <dt>Stone</dt><dd>${esc(o.stone)} in ${esc(o.metal)}</dd>
+          ${d.selectionLabel ? `<dt>Arcade made it in</dt><dd>${esc(d.selectionLabel)}</dd>` : `<dt>Stone</dt><dd>${esc(o.stone)} in ${esc(o.metal)}</dd>`}
+          ${d.maker ? `<dt>Maker</dt><dd>${esc(d.maker)}</dd>` : ''}
           <dt>Price</dt><dd class="price">${esc(money(d.unitPrice))}</dd>
           <dt>Quantity</dt><dd>1, shipped directly to you</dd>
           <dt>Product</dt><dd><code>${esc(d.productId)}</code></dd>
         </dl>
+        ${d.description ? `<p style="margin:0 0 12px;font-size:15px">${esc(d.description)}</p>` : ''}
         <p style="margin:0 0 16px;color:var(--ash);font-size:15px">${esc(firstName())}, wear it starting on the night it arrives. ${o.intent === 'protection' ? 'Let it face outward.' : 'Hold it once and say what you are calling in.'}</p>
         <div class="center" style="justify-content:flex-start"><button class="btn" type="button" id="placeOrder">Place order with Arcade</button><button class="btn ghost" type="button" id="changeMind">Choose another</button></div>
         <div id="receipt"></div>
       </div>
     </div>`;
-  const src = $(`#t-${key} .view img`) || $(`#t-${key} .view canvas`);
-  const clone = src.tagName === 'IMG' ? Object.assign(new Image(), { src: src.src, alt: src.alt }) : document.createElement('canvas');
-  if (clone.tagName === 'CANVAS') { clone.width = clone.height = 400; drawPiece(clone, o); }
-  $('#orderView').append(clone);
+  const view = $('#orderView'), drawn = document.createElement('canvas');
+  drawn.width = drawn.height = 400; drawPiece(drawn, o); view.append(drawn);
+  const images = d.images?.length ? d.images : d.imageUrl ? [d.imageUrl] : [];
+  if (images.length) {
+    // Show Arcade's product images; thumbnails switch the main view.
+    loadImage(images[0], `${d.title || o.name}, designed by Arcade`).then(img => drawn.replaceWith(img)).catch(() => {});
+    if (images.length > 1) {
+      const strip = document.createElement('div');
+      strip.style.cssText = 'display:grid;grid-template-columns:repeat(4,1fr);gap:6px';
+      images.slice(0, 8).forEach((u, i) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.setAttribute('aria-label', `Show Arcade image ${i + 1}`);
+        b.style.cssText = 'padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:pointer;background:none;aspect-ratio:1';
+        loadImage(u, '').then(t => { t.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:0'; b.append(t); }).catch(() => b.remove());
+        b.onclick = () => loadImage(u, `${d.title || o.name}, image ${i + 1}`).then(img => view.firstElementChild.replaceWith(img));
+        strip.append(b);
+      });
+      view.append(strip);
+    }
+  }
   $('#placeOrder').onclick = () => placeOrder(o, d);
   $('#changeMind').onclick = () => $('#talismanStage').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
   el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });

@@ -1,5 +1,4 @@
 {
   "buildCommand": "node scripts/build.mjs",
-  "outputDirectory": "public",
-  "rewrites": [{ "source": "/api/:route*", "destination": "/api/proxy?route=:route*" }]
+  "outputDirectory": "public"
 }

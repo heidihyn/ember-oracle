@@ -20,6 +20,15 @@ node server.mjs                             # sample data mode
 Open http://localhost:8787. The banner at the top says which mode you are in, and the
 "Arcade calls" button lists every API request the page made.
 
+## Deploy on GitHub Pages
+
+`.github/workflows/pages.yml` builds `public/index.html` and publishes `public/` on every push to
+`main`. Turn it on once under **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+
+GitHub Pages only serves static files, so there is nowhere to keep the Arcade key and the site runs
+in sample data mode. For live designs and orders, host the proxy somewhere that runs code (the local
+server, or the Netlify setup below).
+
 ## Deploy on Netlify
 
 1. In Netlify, choose **Add new project → Import an existing project** and pick this GitHub repo.

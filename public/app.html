@@ -1,0 +1,780 @@
+<title>The Ember Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500&family=Martian+Mono:wght@400&display=swap">
+<style>
+/* Layout: one candlelit chamber. The orb is the hero and the conversation; the reading, talismans and order unfold beneath it in a single column. */
+:root {
+  --void: #0e0705;
+  --chamber: #1b0f0a;
+  --panel: rgba(255, 186, 120, 0.055);
+  --line: rgba(240, 168, 100, 0.22);
+  --amber: #f4a259;
+  --ember: #e0623a;
+  --gold: #e8c27a;
+  --rose: #e79a86;
+  --smoke: #f5e8d8;
+  --ash: #d6bfa6;
+  --dim: #ad9279;
+  --ok: #9fcf8a;
+  --warn: #f0b85a;
+  --bad: #ef7d63;
+  --f-display: "Cinzel", "Trajan Pro", Georgia, serif;
+  --f-serif: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --f-body: "Jost", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "Martian Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  --orb: min(82vw, 420px);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(ellipse 60% 42% at 50% 22%, rgba(224, 98, 58, 0.20), transparent 70%),
+    radial-gradient(ellipse 90% 60% at 50% 110%, rgba(232, 194, 122, 0.08), transparent 70%),
+    var(--void);
+  color: var(--smoke);
+  font: 400 16px/1.6 var(--f-body);
+  padding-inline: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea { font: inherit; color: inherit; }
+a { color: var(--gold); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+
+.mode-banner {
+  max-width: 760px; margin: 12px auto 0; padding: 8px 14px;
+  border: 1px dashed var(--line); border-radius: 999px;
+  font: 400 11.5px/1.5 var(--f-mono); letter-spacing: 0.04em; color: var(--ash);
+  display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; text-align: center;
+}
+.mode-banner .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 10px var(--warn); flex: none; }
+.mode-banner.live .dot { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+
+main { max-width: 760px; margin: 0 auto; padding-block: 18px 120px; display: flex; flex-direction: column; gap: 56px; }
+
+header.brand { text-align: center; display: grid; gap: 4px; }
+.eyebrow { font: 400 12px/1.4 var(--f-mono); letter-spacing: 0.32em; text-transform: uppercase; color: var(--amber); }
+h1 { font: 600 clamp(34px, 6.4vw, 54px)/1.05 var(--f-display); margin: 0; letter-spacing: 0.06em; text-wrap: balance;
+  background: linear-gradient(180deg, var(--smoke), var(--gold) 70%, var(--amber)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sub { color: var(--ash); margin: 0; font-size: 15px; }
+
+/* The orb */
+.seance { display: grid; justify-items: center; gap: 0; }
+.orb-wrap { position: relative; width: var(--orb); aspect-ratio: 1; max-width: 100%; }
+#orb { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.orb-voice {
+  position: absolute; inset: 22% 16% 24%; display: grid; place-items: center; text-align: center;
+  font: 500 clamp(16px, 3.4vw, 20px)/1.45 var(--f-body); color: #fff8ef; letter-spacing: 0.01em;
+  text-shadow: 0 1px 2px rgba(20, 6, 2, 0.95), 0 0 12px rgba(20, 6, 2, 0.85);
+  background: radial-gradient(ellipse 62% 58% at 50% 50%, rgba(18, 7, 3, 0.78), rgba(18, 7, 3, 0.45) 60%, transparent 78%); border-radius: 50%;
+  pointer-events: none; text-wrap: balance; overflow: hidden;
+}
+.pedestal {
+  width: calc(var(--orb) * 0.62); max-width: 90%; height: 34px; margin-top: -26px; position: relative; z-index: 1;
+  background: linear-gradient(180deg, #3a2216, #140a06 70%);
+  clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%);
+  box-shadow: 0 -6px 30px rgba(244, 162, 89, 0.35);
+}
+.pedestal::after { content: ""; position: absolute; left: 14%; right: 14%; top: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.7; }
+
+.altar {
+  width: min(100%, 520px); margin-top: 22px; padding: 18px; border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 186, 120, 0.07), rgba(255, 186, 120, 0.02));
+  border: 1px solid var(--line); display: grid; gap: 14px;
+}
+.altar label.q { font: 400 12px/1.4 var(--f-mono); letter-spacing: 0.22em; text-transform: uppercase; color: var(--amber); }
+.field-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.field-row > input { flex: 1 1 200px; min-width: 0; }
+input[type="text"], input[type="date"], textarea {
+  background: rgba(14, 7, 5, 0.75); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; color: var(--smoke);
+  transition: border-color .2s, box-shadow .2s;
+}
+input:focus, textarea:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px rgba(244, 162, 89, 0.18); }
+textarea { width: 100%; min-height: 84px; resize: vertical; }
+::placeholder { color: var(--dim); }
+
+.btn {
+  border: 1px solid var(--amber); background: linear-gradient(180deg, #f6b06c, #d7743f); color: #2a1206;
+  font-weight: 500; letter-spacing: 0.03em; padding: 12px 20px; border-radius: 999px; cursor: pointer;
+  box-shadow: 0 0 22px rgba(244, 162, 89, 0.35); transition: transform .15s, box-shadow .2s; white-space: nowrap;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 0 32px rgba(244, 162, 89, 0.55); }
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.btn.ghost { background: transparent; color: var(--gold); border-color: var(--line); box-shadow: none; }
+.btn.ghost:hover { border-color: var(--gold); }
+.linkish { background: none; border: 0; color: var(--ash); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 0; font-size: 14px; justify-self: start; }
+.linkish:hover { color: var(--gold); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 1px solid var(--line); background: rgba(14, 7, 5, 0.6); color: var(--smoke); border-radius: 999px;
+  padding: 8px 14px; cursor: pointer; font-size: 14px; display: inline-flex; gap: 8px; align-items: center; transition: all .2s;
+}
+.chip .gemdot { width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+.chip[aria-pressed="true"] { border-color: var(--amber); background: rgba(244, 162, 89, 0.16); box-shadow: 0 0 16px rgba(244, 162, 89, 0.25); }
+
+/* Sections below the orb */
+section.stage { display: grid; gap: 22px; animation: rise .9s ease both; }
+@keyframes rise { from { transform: translateY(14px); opacity: .001; } to { transform: none; opacity: 1; } }
+.stage-head { display: grid; gap: 6px; text-align: center; }
+h2 { font: 500 clamp(24px, 4.4vw, 34px)/1.2 var(--f-display); margin: 0; color: var(--gold); letter-spacing: 0.03em; text-wrap: balance; }
+.stage-head p { margin: 0 auto; color: var(--ash); max-width: 56ch; }
+
+.signs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.sign { background: var(--chamber); padding: 14px 16px; display: grid; gap: 2px; min-width: 0; }
+.sign .k { font: 400 11.5px/1.4 var(--f-mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); }
+.sign .v { font: 700 25px/1.2 var(--f-serif); color: var(--smoke); }
+.sign .n { font-size: 13px; color: var(--ash); }
+
+.prophecy { display: grid; gap: 26px; }
+.verse { display: grid; grid-template-columns: 110px 1fr; gap: 18px; align-items: start; }
+.verse .when { font: 400 12px/1.6 var(--f-mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber); padding-top: 6px; border-top: 1px solid var(--line); }
+.verse p { margin: 0; font-size: 18px; line-height: 1.7; max-width: 62ch; min-width: 0; }
+.verse p em { font-style: normal; color: var(--gold); }
+.echo { border-left: 2px solid var(--rose); padding: 4px 0 4px 18px; color: #f6c2b2; font: 600 22px/1.45 var(--f-serif); max-width: 60ch; margin: 0; }
+
+.stones { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.stone { display: grid; grid-template-columns: 76px 1fr; gap: 16px; align-items: center; padding: 18px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); }
+.stone canvas { width: 76px; height: 76px; }
+.stone .k { font: 400 11.5px/1.4 var(--f-mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber); }
+.stone h3 { font: 700 27px/1.15 var(--f-serif); margin: 2px 0 6px; color: var(--smoke); }
+.stone p { margin: 0; font-size: 14.5px; color: var(--ash); }
+.center { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+.talismans { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+.talisman {
+  position: relative; display: grid; grid-template-rows: auto auto 1fr auto; gap: 12px; padding: 16px; border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 186, 120, 0.08), rgba(14, 7, 5, 0.4)); border: 1px solid var(--line);
+  transition: border-color .25s, box-shadow .25s, transform .25s; min-width: 0;
+}
+.talisman.chosen { border-color: var(--amber); box-shadow: 0 0 40px rgba(244, 162, 89, 0.3); }
+.talisman .view { position: relative; aspect-ratio: 1; border-radius: 14px; overflow: hidden; background: radial-gradient(circle at 50% 45%, #3b2116, #0f0705 75%); }
+.talisman .view canvas, .talisman .view img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.talisman .badge { position: absolute; top: 10px; left: 10px; font: 400 10.5px/1 var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; padding: 6px 8px; border-radius: 999px; background: rgba(14, 7, 5, 0.75); border: 1px solid var(--line); color: var(--ash); }
+.talisman .forging { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 20px; font: 500 16px/1.3 var(--f-body); color: #ffe7c2; text-shadow: 0 1px 3px #000; background: radial-gradient(circle, rgba(14, 7, 5, 0.75), rgba(14, 7, 5, 0.35) 70%); }
+.talisman .forging::before { content: ""; position: absolute; width: 46%; aspect-ratio: 1; border-radius: 50%; border: 1px solid var(--amber); border-top-color: transparent; animation: spin 1.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.talisman .intent { font: 400 11.5px/1.4 var(--f-mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber); }
+.talisman h3 { font: 700 27px/1.15 var(--f-serif); margin: 2px 0 0; color: var(--smoke); text-wrap: balance; }
+.talisman .spec { font-size: 13px; color: var(--ash); }
+.talisman .why { font-size: 15px; line-height: 1.6; margin: 0; }
+.talisman .foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--line); }
+.price { font: 400 15px/1 var(--f-mono); color: var(--gold); font-variant-numeric: tabular-nums; }
+.price small { font-size: 10px; color: var(--dim); margin-left: 4px; }
+details.prompt { font-size: 12.5px; color: var(--dim); }
+details.prompt summary { cursor: pointer; font: 400 11.5px/1.6 var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; }
+details.prompt p { margin: 6px 0 0; font-style: italic; overflow-wrap: anywhere; }
+.err { color: var(--bad); font-size: 13.5px; margin: 0; }
+
+.order { display: grid; grid-template-columns: minmax(0, 200px) 1fr; gap: 22px; padding: 22px; border-radius: 20px; border: 1px solid var(--amber); background: linear-gradient(135deg, rgba(244, 162, 89, 0.1), rgba(14, 7, 5, 0.6)); align-items: center; }
+.order canvas, .order img { width: 100%; aspect-ratio: 1; border-radius: 14px; background: radial-gradient(circle at 50% 45%, #3b2116, #0f0705 75%); object-fit: cover; }
+.order dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 0 0 16px; font-size: 14px; }
+.order dt { color: var(--dim); font: 400 12px/1.9 var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; }
+.order dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.receipt { margin-top: 14px; padding: 14px; border-radius: 12px; background: rgba(14, 7, 5, 0.7); border: 1px solid var(--line); display: grid; gap: 8px; font-size: 14px; }
+.receipt code { font-family: var(--f-mono); font-size: 12px; color: var(--gold); overflow-wrap: anywhere; }
+
+/* Arcade call log */
+.log-toggle { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 5; font: 400 11.5px/1 var(--f-mono); letter-spacing: 0.08em; padding: 10px 14px; border-radius: 999px; background: rgba(27, 15, 10, 0.92); color: var(--gold); border: 1px solid var(--line); cursor: pointer; backdrop-filter: blur(8px); }
+.log { position: fixed; right: 16px; left: 16px; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); z-index: 5; max-width: 520px; margin-left: auto; max-height: 56vh; overflow: auto; padding: 14px; border-radius: 16px; background: rgba(18, 10, 7, 0.97); border: 1px solid var(--line); font: 400 12px/1.55 var(--f-mono); color: var(--ash); }
+.log h4 { margin: 0 0 8px; font: 400 11px/1.4 var(--f-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--amber); }
+.log .entry { padding: 8px 0; border-top: 1px solid var(--line); }
+.log .entry b { color: var(--smoke); font-weight: 400; }
+.log pre { margin: 4px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--dim); }
+
+footer { text-align: center; color: var(--dim); font-size: 12.5px; }
+
+@media (max-width: 560px) {
+  .verse { grid-template-columns: 1fr; gap: 6px; }
+  .order { grid-template-columns: 1fr; }
+  .order canvas, .order img { max-width: 220px; justify-self: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="mode-banner" id="modeBanner"><span class="dot"></span><span id="modeText">Sample data mode. Arcade design and order calls are simulated.</span></div>
+
+<main>
+  <header class="brand">
+    <span class="eyebrow">Arcade jewelry demo</span>
+    <h1>The Ember Oracle</h1>
+    <p class="sub">Speak to the orb. It reads your stars, then forges a talisman for the road ahead.</p>
+  </header>
+
+  <div class="seance">
+    <div class="orb-wrap">
+      <canvas id="orb" aria-hidden="true"></canvas>
+      <div class="orb-voice" id="orbVoice" aria-live="polite">I have been waiting for you.<br>Tell me the name you answer to.</div>
+    </div>
+    <div class="pedestal" aria-hidden="true"></div>
+    <form class="altar" id="altar" autocomplete="off"></form>
+  </div>
+
+  <section class="stage" id="readingStage" hidden></section>
+  <section class="stage" id="talismanStage" hidden></section>
+  <section class="stage" id="orderStage" hidden></section>
+
+  <footer>A demo for entertainment. Talisman designs and orders run through the Arcade API.</footer>
+</main>
+
+<button class="log-toggle" id="logToggle" type="button" aria-expanded="false" aria-controls="log">Arcade calls (0)</button>
+<div class="log" id="log" hidden><h4>Arcade API calls</h4><div id="logBody"><p>No calls yet. They appear here as the orb designs and orders jewelry.</p></div></div>
+
+<script>
+// Live mode points at the local proxy in server.mjs. Set window.ORACLE_API_BASE before this script to use another host.
+const API_BASE = window.ORACLE_API_BASE ?? 'api/';
+
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const state = { live: false, step: 'name', name: '', dob: '', intents: [], words: '', reading: null, options: [], designs: {}, chosen: null };
+
+/* ---------- Lore ---------- */
+const INTENTS = {
+  love:       { label: 'Love',            stone: 'Rose quartz',      color: '#f2a7a0', metal: '14k rose gold',    motif: 'two crescent moons that meet to form a heart', ringName: 'Twin Crescent Ring',  pendantName: 'Heartmoon Locket',
+                promise: 'it softens the guard around your heart and draws in a love that answers back' },
+  prosperity: { label: 'Prosperity',      stone: 'Citrine',          color: '#f5b83d', metal: '18k yellow gold',  motif: 'a sunburst of fine engraved rays', ringName: 'Sunmerchant Ring', pendantName: 'Sunburst Coin Pendant',
+                promise: 'it holds sunlight and is said to draw money that stays' },
+  protection: { label: 'Protection',      stone: 'Black tourmaline', color: '#3a2c28', metal: '18k yellow gold',  motif: 'an engraved eye with radiating lashes', ringName: 'Watchful Eye Ring', pendantName: 'Ember Eye Amulet',
+                promise: 'it absorbs ill will before it can reach you' },
+  career:     { label: 'Career & purpose',stone: "Tiger's eye",      color: '#b8742a', metal: '14k yellow gold',  motif: 'a rising arrow crowned by three small stars', ringName: 'Rising Arrow Signet', pendantName: 'Ascent Pendant',
+                promise: 'it keeps your courage steady and your eyes open when the stakes rise' },
+  health:     { label: 'Health & calm',   stone: 'Green jade',       color: '#5f9e6e', metal: '14k yellow gold',  motif: 'an open lotus', ringName: 'Lotus Breath Ring', pendantName: 'Still Water Lotus Pendant',
+                promise: 'it is said to bring the body back into its own rhythm' },
+  clarity:    { label: 'Clarity',         stone: 'Amethyst',         color: '#9b6fb0', metal: '14k rose gold',    motif: 'a crescent moon cradling an open eye', ringName: 'Clear Sight Ring', pendantName: 'Moonlit Seer Pendant',
+                promise: 'it quiets the noise so the true answer can be heard' },
+};
+const PRESENT = {
+  love: 'Your heart is asking to be met. Something in you has been waiting to be chosen without having to earn it, and the waiting has made you careful.',
+  prosperity: 'You stand at the edge of more. The orb sees effort that has not been paid back yet, and the turning is close.',
+  protection: "You have been carrying more than your share: other people's moods, old words, a heaviness that was never yours. It is time to close the door, gently.",
+  career: 'Your work is ready for a bigger room. The hesitation you feel is grief for the smaller self you are outgrowing. Your skill is not in question.',
+  health: 'Your body has been speaking softly for a while. Rest is part of the work, and the orb sees you returning to your own rhythm.',
+  clarity: 'Two roads have been sitting inside you side by side. You already lean toward one. You have been waiting for permission.',
+};
+const WEIGHT = {
+  love: 'a heart that has been guarding itself', prosperity: 'effort that has not yet been repaid', protection: "a heaviness that does not belong to you",
+  career: 'a self outgrowing its room', health: 'a body asking for rest', clarity: 'two roads pulling at you at once',
+};
+const ELEMENTS = {
+  fire: 'You were made to move first and explain later. People warm themselves on you, and you rarely ask who warms you.',
+  earth: "You build slowly and you build to last. You carry other people's weight so quietly that most of them never notice.",
+  air: 'Your mind is always a room ahead of where you stand. You see every side, which is a gift and sometimes a way of not choosing.',
+  water: 'You feel the tide in a room before anyone speaks. You have learned to hide how much you absorb.',
+};
+const PATHS = { 1: 'the path of the one who begins', 2: 'the path of the bridge between people', 3: 'the path of the voice', 4: 'the path of the builder',
+  5: 'the path of the wanderer who needs open sky', 6: 'the path of the keeper of others', 7: 'the path of the seeker of hidden things', 8: 'the path of power and abundance',
+  9: 'the path of the old soul who must let go', 11: 'a master path of intuition', 22: 'a master path of the great builder', 33: 'a master path of the healer' };
+const ZODIAC = [['Capricorn', 19, '♑', 'earth'], ['Aquarius', 18, '♒', 'air'], ['Pisces', 20, '♓', 'water'], ['Aries', 19, '♈', 'fire'], ['Taurus', 20, '♉', 'earth'], ['Gemini', 20, '♊', 'air'],
+  ['Cancer', 22, '♋', 'water'], ['Leo', 22, '♌', 'fire'], ['Virgo', 22, '♍', 'earth'], ['Libra', 22, '♎', 'air'], ['Scorpio', 21, '♏', 'water'], ['Sagittarius', 21, '♐', 'fire']];
+const BIRTHSTONES = [
+  ['Garnet', '#8e1f2a', 'steadfast loyalty and safe travel'], ['Amethyst', '#9b6fb0', 'a clear and sober mind'], ['Aquamarine', '#7fc6c9', 'courage at sea and calm waters'],
+  ['Diamond', '#f1ece4', 'unbreakable resolve'], ['Emerald', '#2f8a5b', 'rebirth and faithful love'], ['Moonstone', '#e6dccd', 'intuition and new beginnings'],
+  ['Ruby', '#b3122e', 'passion and vitality'], ['Peridot', '#9dbb3a', 'protection from the dark'], ['Sapphire', '#2c4f9e', 'wisdom and truth'],
+  ['Opal', '#f0c9b0', 'hope and creative fire'], ['Citrine', '#e9a23b', 'warmth and abundance'], ['Turquoise', '#3fb4ac', 'protection on every journey']];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const OMENS = [
+  d => `Before the new moon on ${d}, a message arrives from someone you had quietly given up on. Answer it slower than you want to.`,
+  () => 'A small yes in the coming weeks opens a much larger door. You will know it because it will feel too easy.',
+  () => 'Someone near you is about to show you who they are. Believe them the first time, and save your warmth for the ones who stay.',
+  () => 'A plan you set down long ago returns in a new form. This time you have what it was missing.',
+  d => `Money and meaning arrive together this season, from a direction you were not watching. Look up around ${d}.`,
+  () => 'You will be asked to choose between comfort and the thing that frightens you a little. The orb leans toward the fright.',
+];
+const KEYWORDS = {
+  love: /love|partner|relationship|heart|marri|lonely|alone|crush|dating|ex\b|soulmate|family/i,
+  prosperity: /money|rich|wealth|debt|financ|abundan|prosper|business|luck|lottery|invest|rent/i,
+  protection: /protect|negativ|bad luck|evil|jealous|toxic|curse|safe|anxious|fear|scared|attack|enemy/i,
+  career: /job|career|work|boss|promotion|startup|interview|purpose|school|study|exam/i,
+  health: /health|sick|tired|exhaust|sleep|body|heal|stress|burn ?out|calm|peace/i,
+  clarity: /lost|confus|decid|decision|choice|direction|clarity|stuck|move|which way|unsure/i,
+};
+
+/* ---------- Small helpers ---------- */
+function seeded(str) { let h = 1779033703 ^ str.length; for (let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
+  return () => { h = Math.imul(h ^ h >>> 16, 2246822507); h = Math.imul(h ^ h >>> 13, 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; }; }
+function zodiacOf(m, d) { const z = ZODIAC[m - 1]; return d <= z[1] ? z : ZODIAC[m % 12]; }
+function lifePath(dob) { let n = dob.replace(/\D/g, '').split('').reduce((a, b) => a + +b, 0);
+  while (n > 9 && ![11, 22, 33].includes(n)) n = String(n).split('').reduce((a, b) => a + +b, 0); return n; }
+function moon(now = new Date()) {
+  const syn = 29.530588853, ref = Date.UTC(2000, 0, 6, 18, 14);
+  const age = (((now - ref) / 864e5) % syn + syn) % syn;
+  const illum = Math.round((1 - Math.cos(2 * Math.PI * age / syn)) / 2 * 100);
+  const names = ['New moon', 'Waxing crescent', 'First quarter', 'Waxing gibbous', 'Full moon', 'Waning gibbous', 'Last quarter', 'Waning crescent'];
+  const phase = names[Math.floor((age / syn) * 8 + 0.5) % 8];
+  const next = new Date(+now + (syn - age) * 864e5);
+  return { phase, illum, next, nextLabel: next.toLocaleDateString(undefined, { month: 'long', day: 'numeric' }) };
+}
+function money(p) {
+  if (!p) return '';
+  const amount = p.amount ?? p.value; const cur = p.currency || 'USD';
+  if (typeof amount === 'string' && isNaN(+amount)) return amount;
+  try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur }).format(+amount); } catch { return `${amount} ${cur}`; }
+}
+function firstName() { return state.name.trim().split(/\s+/)[0] || 'traveler'; }
+function uuid() { return crypto.randomUUID ? crypto.randomUUID() : 'req-' + Date.now() + '-' + Math.random().toString(16).slice(2); }
+
+/* ---------- Arcade call log ---------- */
+const calls = [];
+function logCall(path, body, note) {
+  calls.push({ path, body, note, t: new Date() });
+  $('#logToggle').textContent = `Arcade calls (${calls.length})`;
+  $('#logBody').innerHTML = calls.slice().reverse().map(c => `<div class="entry"><b>POST /v1${esc(c.path)}</b> · ${esc(c.note || '')}<pre>${esc(JSON.stringify(c.body, null, 1))}</pre></div>`).join('');
+}
+$('#logToggle').addEventListener('click', e => { const log = $('#log'); log.hidden = !log.hidden; e.currentTarget.setAttribute('aria-expanded', String(!log.hidden)); });
+
+/* ---------- Orb voice ---------- */
+let voiceToken = 0;
+async function say(text) {
+  const token = ++voiceToken, el = $('#orbVoice');
+  orbFx.speak = 1;
+  if (reduceMotion) { el.textContent = text; return; }
+  el.textContent = '';
+  for (let i = 0; i <= text.length; i++) {
+    if (token !== voiceToken) return;
+    el.textContent = text.slice(0, i);
+    await sleep(text[i - 1] === '.' || text[i - 1] === ',' ? 160 : 26);
+  }
+}
+
+/* ---------- Conversation steps ---------- */
+function renderAltar() {
+  const a = $('#altar');
+  if (state.step === 'name') {
+    a.innerHTML = `<label class="q" for="name">Your name</label>
+      <div class="field-row"><input type="text" id="name" placeholder="The name you answer to" maxlength="60" required value="${esc(state.name)}"><button class="btn" type="submit">Speak to the orb</button></div>
+      <button class="linkish" type="button" id="sample">Try a sample visitor</button>`;
+    $('#sample').onclick = runSample;
+  } else if (state.step === 'dob') {
+    const max = new Date().toISOString().slice(0, 10);
+    a.innerHTML = `<label class="q" for="dob">Your date of birth</label>
+      <div class="field-row"><input type="date" id="dob" required min="1900-01-01" max="${max}" value="${esc(state.dob)}"><button class="btn" type="submit">Offer it to the orb</button></div>
+      <button class="linkish" type="button" id="back">Change my name</button>`;
+    $('#back').onclick = () => { state.step = 'name'; renderAltar(); say('Tell me the name you answer to.'); };
+  } else if (state.step === 'seek') {
+    a.innerHTML = `<span class="q" id="seekLabel">What are you seeking guidance in?</span>
+      <div class="chips" role="group" aria-labelledby="seekLabel">${Object.entries(INTENTS).map(([k, v]) =>
+        `<button type="button" class="chip" data-k="${k}" aria-pressed="${state.intents.includes(k)}"><span class="gemdot" style="background:${v.color};color:${v.color}"></span>${v.label}</button>`).join('')}</div>
+      <label class="q" for="words">Tell the orb what weighs on you</label>
+      <textarea id="words" maxlength="600" placeholder="Anything you are hoping for, afraid of, or unsure about. The orb keeps it between you.">${esc(state.words)}</textarea>
+      <div class="field-row"><button class="btn" type="submit">Let the orb look</button></div>`;
+    a.querySelectorAll('.chip').forEach(c => c.onclick = () => {
+      const k = c.dataset.k, on = c.getAttribute('aria-pressed') !== 'true';
+      c.setAttribute('aria-pressed', String(on));
+      state.intents = on ? [...state.intents, k] : state.intents.filter(x => x !== k);
+    });
+  } else {
+    a.hidden = true; return;
+  }
+  a.hidden = false;
+  setTimeout(() => a.querySelector('input,textarea')?.focus({ preventScroll: true }), 50);
+}
+
+$('#altar').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (state.step === 'name') {
+    state.name = $('#name').value.trim(); if (!state.name) return;
+    state.step = 'dob'; renderAltar();
+    await say(`${firstName()}. A name that has been carrying more than it shows. When did you arrive in this world?`);
+  } else if (state.step === 'dob') {
+    state.dob = $('#dob').value; if (!state.dob) return;
+    const [, m, d] = state.dob.split('-').map(Number); const z = zodiacOf(m, d);
+    state.step = 'seek'; renderAltar();
+    await say(`${z[0]}, born of ${z[3]}. I see you now. What is your heart really asking for?`);
+  } else if (state.step === 'seek') {
+    state.words = $('#words').value.trim();
+    if (!state.intents.length && !state.words) { await say('Choose what you seek, or tell me in your own words.'); return; }
+    state.step = 'gazing'; renderAltar();
+    gaze();
+  }
+});
+
+async function gaze() {
+  orbFx.gaze = 1;
+  await say('Thank you for trusting me with that. Be still. The orb is looking.');
+  await sleep(reduceMotion ? 300 : 2200);
+  orbFx.gaze = 0;
+  state.reading = buildReading();
+  renderReading();
+  await say(`${firstName()}, your reading is ready. Look below the orb.`);
+}
+
+function runSample() {
+  Object.assign(state, { name: 'Mara Ellison', dob: '1994-03-17', intents: ['love', 'career'],
+    words: "I just moved to a new city for a job I'm not sure about, and I keep wondering if I'll ever find someone who really gets me." });
+  state.step = 'gazing'; renderAltar(); gaze();
+}
+
+/* ---------- The reading ---------- */
+function buildReading() {
+  const [y, m, d] = state.dob.split('-').map(Number);
+  const rng = seeded(state.name.toLowerCase() + state.dob);
+  const inferred = Object.keys(KEYWORDS).filter(k => KEYWORDS[k].test(state.words));
+  const intents = [...new Set([...state.intents, ...inferred])];
+  if (!intents.length) intents.push('clarity');
+  const primary = intents[0];
+  const z = zodiacOf(m, d), lp = lifePath(state.dob), bs = BIRTHSTONES[m - 1], mn = moon();
+  const omen = OMENS[Math.floor(rng() * OMENS.length)](mn.nextLabel);
+  let echo = '';
+  if (state.words) {
+    const snippet = state.words.length > 140 ? state.words.slice(0, 137).trim() + '…' : state.words;
+    const under = /afraid|fear|scared|anxious|worr/i.test(state.words) ? 'a fear of losing what you have fought for'
+      : /lonely|alone|gets me|understand|seen/i.test(state.words) ? 'a deep wish to be truly seen'
+      : /stuck|lost|unsure|not sure|confus/i.test(state.words) ? 'a longing to trust your own direction again'
+      : /money|debt|rent|afford/i.test(state.words) ? 'a tiredness from always holding things together'
+      : 'a hope that you are on the right road';
+    echo = { snippet, under };
+  }
+  return { y, m, d, z, lp, bs, mn, omen, intents, primary, echo, element: ELEMENTS[z[3]] };
+}
+
+function renderReading() {
+  const r = state.reading, p = INTENTS[r.primary], el = $('#readingStage');
+  el.hidden = false;
+  el.innerHTML = `
+    <div class="stage-head"><span class="eyebrow">Your reading</span><h2>What the orb sees for ${esc(firstName())}</h2>
+      <p>Drawn from your stars, your numbers, the moon tonight, and what you told me.</p></div>
+    <div class="signs">
+      <div class="sign"><span class="k">Sun sign</span><span class="v">${r.z[2]}&#xFE0E; ${r.z[0]}</span><span class="n">${r.z[3][0].toUpperCase() + r.z[3].slice(1)} sign</span></div>
+      <div class="sign"><span class="k">Life path</span><span class="v">${r.lp}</span><span class="n">${PATHS[r.lp].replace(/^(a|the) /, '')}</span></div>
+      <div class="sign"><span class="k">Birthstone</span><span class="v">${r.bs[0]}</span><span class="n">${MONTHS[r.m - 1]}</span></div>
+      <div class="sign"><span class="k">Moon tonight</span><span class="v">${r.mn.illum}%</span><span class="n">${r.mn.phase}</span></div>
+    </div>
+    ${r.echo ? `<blockquote class="echo">You came carrying these words: “${esc(r.echo.snippet)}” Underneath them I hear ${r.echo.under}.</blockquote>` : ''}
+    <div class="prophecy">
+      <div class="verse"><span class="when">What shaped you</span><p>Born under <em>${r.z[0]}</em>, ${r.element.charAt(0).toLowerCase() + r.element.slice(1)} You walk ${PATHS[r.lp]}, and it has asked a lot of you already.</p></div>
+      <div class="verse"><span class="when">Where you stand</span><p>${PRESENT[r.primary]}${r.intents.length > 1 ? ` The orb also sees threads of <em>${r.intents.slice(1).map(k => INTENTS[k].label.toLowerCase()).join('</em> and <em>')}</em> wound through this.` : ''}</p></div>
+      <div class="verse"><span class="when">What approaches</span><p>${r.omen}</p></div>
+    </div>
+    <div class="stones">
+      <div class="stone"><canvas width="152" height="152" data-gem="${p.color}"></canvas><div><span class="k">Stone for this reading</span><h3>${p.stone}</h3><p>The orb calls on ${p.stone.toLowerCase()} for you now, because ${p.promise}.</p></div></div>
+      <div class="stone"><canvas width="152" height="152" data-gem="${r.bs[1]}"></canvas><div><span class="k">Your anchor stone</span><h3>${r.bs[0]}</h3><p>Your birthstone has been with you since before you could ask for anything. It carries ${r.bs[2]}.</p></div></div>
+    </div>
+    <div class="center"><button class="btn" type="button" id="toTalismans">Design my talismans</button><button class="btn ghost" type="button" id="restart">Begin again</button></div>`;
+  el.querySelectorAll('canvas[data-gem]').forEach(c => drawGem(c.getContext('2d'), c.width / 2, c.height / 2, c.width * 0.36, c.dataset.gem, true));
+  $('#toTalismans').onclick = () => { $('#toTalismans').disabled = true; buildTalismans(); };
+  $('#restart').onclick = restart;
+  el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+}
+
+function restart() {
+  Object.assign(state, { step: 'name', name: '', dob: '', intents: [], words: '', reading: null, options: [], designs: {}, chosen: null });
+  ['#readingStage', '#talismanStage', '#orderStage'].forEach(s => { $(s).hidden = true; $(s).innerHTML = ''; });
+  renderAltar(); window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  say('I am here again. Tell me the name you answer to.');
+}
+
+/* ---------- Talisman options ---------- */
+function buildOptions(r) {
+  const p = INTENTS[r.primary];
+  const second = r.intents.find(k => k !== r.primary && k !== 'protection') || (r.primary === 'prosperity' ? 'love' : 'prosperity');
+  const hand = { key: 'heart', intent: r.primary, piece: 'ring', stone: p.stone, color: p.color, metal: p.metal, motif: p.motif, name: p.ringName,
+    why: `This is the center of your reading. ${p.stone} sits on your hand where you will see it many times a day, and ${p.promise}. It answers ${r.echo ? 'what you told me' : 'what you came here seeking'}: ${WEIGHT[r.primary]} is finally given somewhere to rest.` };
+  let ward;
+  if (r.primary !== 'protection') {
+    const w = INTENTS.protection;
+    ward = { key: 'ward', intent: 'protection', piece: 'necklace', stone: w.stone, color: w.color, metal: w.metal, motif: w.motif, name: w.pendantName,
+      why: `Every reading that turns toward ${p.label.toLowerCase()} draws attention, and not all of it is kind. The eye faces outward and turns back what is not yours, while black tourmaline absorbs the rest. Wear it close to the heart until ${r.mn.nextLabel}'s new moon has passed.` };
+  } else {
+    const s = INTENTS[second];
+    ward = { key: 'ward', intent: second, piece: 'necklace', stone: s.stone, color: s.color, metal: s.metal, motif: s.motif, name: s.pendantName,
+      why: `Once the door is closed, something good needs room to come in. ${s.stone} is the invitation: ${s.promise}. Worn over the heart, it keeps your protection from turning into walls.` };
+  }
+  const anchor = { key: 'anchor', intent: 'good fortune', piece: 'bracelet', stone: r.bs[0], color: r.bs[1], metal: '14k yellow gold', motif: `small star beads tracing the ${r.z[0]} constellation`,
+    name: `${r.bs[0]} Star-Path Bracelet`,
+    why: `Your birthstone has walked with you since ${MONTHS[r.m - 1]} ${r.y}. Strung between the stars of ${r.z[0]}, it carries good fortune into what approaches: ${r.omen.charAt(0).toLowerCase() + r.omen.slice(1)}` };
+  const opts = [hand, ward, anchor];
+  opts.forEach(o => {
+    const shape = o.piece === 'ring' ? 'oval' : o.piece === 'necklace' ? 'round cabochon' : 'small round';
+    o.prompt = o.piece === 'bracelet'
+      ? `A delicate ${o.metal} chain bracelet with a ${shape} ${o.stone.toLowerCase()} at the center and ${o.motif}. Warm, mystical, fine jewelry talisman for good fortune.`
+      : `A ${o.metal} ${o.piece === 'ring' ? 'ring' : 'pendant necklace'} set with a ${shape} ${o.stone.toLowerCase()}, decorated with ${o.motif}. Warm, mystical, fine jewelry talisman for ${o.intent}.`;
+  });
+  return opts;
+}
+
+function buildTalismans() {
+  const r = state.reading, el = $('#talismanStage');
+  state.options = buildOptions(r);
+  el.hidden = false;
+  el.innerHTML = `<div class="stage-head"><span class="eyebrow">Talismans forged for you</span><h2>Three pieces for your path</h2>
+      <p>Each one is designed live from your reading. Choose the one that speaks to you, and the orb will place your order.</p></div>
+    <div class="talismans">${state.options.map(o => `
+      <article class="talisman" id="t-${o.key}">
+        <div class="view"><canvas width="480" height="480"></canvas><span class="badge">${state.live ? 'Arcade design' : 'Sample render'}</span><div class="forging">Forging your ${o.piece}…</div></div>
+        <div><span class="intent">For ${esc(o.intent)}</span><h3>${esc(o.name)}</h3><div class="spec">${esc(o.stone)} · ${esc(o.metal)} · ${o.piece}</div></div>
+        <div style="display:grid;gap:10px;align-content:start"><p class="why">${esc(o.why)}</p><details class="prompt"><summary>Prompt sent to Arcade</summary><p>${esc(o.prompt)}</p></details></div>
+        <div class="foot"><span class="price" data-price>Pricing…</span><button class="btn" type="button" data-choose="${o.key}" disabled>Choose this piece</button></div>
+      </article>`).join('')}</div>`;
+  state.options.forEach(o => {
+    drawPiece($(`#t-${o.key} canvas`), o);
+    designOne(o);
+  });
+  el.querySelectorAll('[data-choose]').forEach(b => b.onclick = () => choose(b.dataset.choose));
+  el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  say('I am forging three talismans for you. Watch.');
+}
+
+async function designOne(o) {
+  const card = $(`#t-${o.key}`);
+  card.querySelector('.err')?.remove();
+  card.querySelector('.forging').hidden = false;
+  try {
+    const d = state.live ? await liveDesign(o) : await sampleDesign(o);
+    state.designs[o.key] = d;
+    if (d.imageUrl) {
+      const img = new Image(); img.alt = `${o.name}, designed by Arcade`; img.src = d.imageUrl;
+      img.onload = () => card.querySelector('.view canvas').replaceWith(img);
+    }
+    if (d.title && state.live) card.querySelector('.spec').textContent = `${d.title} · ${o.stone}`;
+    card.querySelector('[data-price]').innerHTML = `${esc(money(d.unitPrice))}<small>${state.live ? '' : 'sample'}</small>`;
+    card.querySelector('[data-choose]').disabled = false;
+  } catch (err) {
+    card.querySelector('[data-price]').textContent = '';
+    const p = document.createElement('p'); p.className = 'err';
+    p.innerHTML = `The orb could not forge this piece: ${esc(err.message)} <button class="linkish" type="button">Try again</button>`;
+    p.querySelector('button').onclick = () => designOne(o);
+    card.querySelector('.foot').before(p);
+  } finally { card.querySelector('.forging').hidden = true; }
+}
+
+async function api(path, body, quiet) {
+  const res = await fetch(API_BASE + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  (data.calls || []).forEach(c => (!quiet || c.path !== '/jobs/get') && logCall(c.path, c.body, c.note));
+  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  return data;
+}
+// Start the Arcade design job, then poll it from the browser so no single request outlives a serverless timeout.
+async function liveDesign(o) {
+  const { jobId } = await api('design/start', { prompt: o.prompt, piece: o.piece });
+  const deadline = Date.now() + 4 * 60 * 1000;
+  for (let n = 0; ; n++) {
+    await sleep(2500);
+    const s = await api('design/status', { jobId }, n > 0);
+    if (s.done) return s;
+    if (Date.now() > deadline) throw new Error('the design is taking too long. Try again in a moment.');
+  }
+}
+
+async function sampleDesign(o) {
+  const rng = seeded(o.prompt);
+  const categoryId = 'cat_sample_jewelry_' + o.piece;
+  const requestId = uuid();
+  logCall('/categories/list', {}, 'sample: pick the category whose world is "jewelry"');
+  logCall('/patterns/create', { requestId, prompt: o.prompt, categoryId }, 'sample: start the design job');
+  await sleep(1400 + rng() * 1800);
+  const jobId = 'job_sample_' + requestId.slice(0, 8);
+  logCall('/jobs/get', { jobId }, 'sample: polled until status is "succeeded"');
+  const productId = 'prod_sample_' + requestId.slice(9, 17);
+  logCall('/products/get', { productId }, 'sample: read title and unit price');
+  const base = { ring: 168, necklace: 214, bracelet: 146 }[o.piece];
+  return { patternId: 'pat_sample_' + requestId.slice(0, 6), productId, title: o.name, unitPrice: { amount: base + Math.round(rng() * 6) * 10, currency: 'USD' }, sample: true };
+}
+
+/* ---------- Choosing and ordering ---------- */
+function choose(key) {
+  state.chosen = key;
+  document.querySelectorAll('.talisman').forEach(t => t.classList.toggle('chosen', t.id === 't-' + key));
+  const o = state.options.find(x => x.key === key), d = state.designs[key], el = $('#orderStage');
+  el.hidden = false;
+  el.innerHTML = `<div class="stage-head"><span class="eyebrow">Your choice</span><h2>Claim the ${esc(o.name)}</h2></div>
+    <div class="order">
+      <div id="orderView"></div>
+      <div>
+        <dl>
+          <dt>Piece</dt><dd>${esc(d.title || o.name)}</dd>
+          <dt>Stone</dt><dd>${esc(o.stone)} in ${esc(o.metal)}</dd>
+          <dt>Price</dt><dd class="price">${esc(money(d.unitPrice))}</dd>
+          <dt>Quantity</dt><dd>1, shipped directly to you</dd>
+          <dt>Product</dt><dd><code>${esc(d.productId)}</code></dd>
+        </dl>
+        <p style="margin:0 0 16px;color:var(--ash);font-size:15px">${esc(firstName())}, wear it starting on the night it arrives. ${o.intent === 'protection' ? 'Let it face outward.' : 'Hold it once and say what you are calling in.'}</p>
+        <div class="center" style="justify-content:flex-start"><button class="btn" type="button" id="placeOrder">Place order with Arcade</button><button class="btn ghost" type="button" id="changeMind">Choose another</button></div>
+        <div id="receipt"></div>
+      </div>
+    </div>`;
+  const src = $(`#t-${key} .view img`) || $(`#t-${key} .view canvas`);
+  const clone = src.tagName === 'IMG' ? Object.assign(new Image(), { src: src.src, alt: src.alt }) : document.createElement('canvas');
+  if (clone.tagName === 'CANVAS') { clone.width = clone.height = 400; drawPiece(clone, o); }
+  $('#orderView').append(clone);
+  $('#placeOrder').onclick = () => placeOrder(o, d);
+  $('#changeMind').onclick = () => $('#talismanStage').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+  el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  say(`The ${o.name}. A wise choice, ${firstName()}. It already knows you.`);
+}
+
+async function placeOrder(o, d) {
+  const btn = $('#placeOrder'), rc = $('#receipt');
+  btn.disabled = true; btn.textContent = 'Sealing your order…';
+  try {
+    const c = state.live ? await api('checkout', { productId: d.productId, quantity: 1 }) : await sampleCheckout(d);
+    btn.textContent = 'Order started';
+    rc.innerHTML = `<div class="receipt">
+      <span><b>Checkout created.</b> ${state.live ? 'Finish payment on Arcade to complete your order.' : 'This is a simulated checkout. Run the live server with an Arcade API key to create a real one.'}</span>
+      <span>Checkout <code>${esc(c.checkoutId)}</code></span>
+      ${state.live && c.checkoutUrl ? `<a class="btn" style="justify-self:start;text-decoration:none" href="${esc(c.checkoutUrl)}" target="_blank" rel="noopener">Complete payment on Arcade</a>` : `<span style="color:var(--dim)">Payment link: <code>${esc(c.checkoutUrl)}</code></span>`}
+      <button class="linkish" type="button" id="checkOrder">Check order status</button>
+      <div id="orderStatus"></div></div>`;
+    $('#checkOrder').onclick = () => checkOrder(c.checkoutId);
+    say(`It is done. Your ${o.piece} is on its way to you, ${firstName()}.`);
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Place order with Arcade';
+    rc.innerHTML = `<p class="err">The order did not go through: ${esc(err.message)}</p>`;
+  }
+}
+
+async function sampleCheckout(d) {
+  const body = { requestId: uuid(), lines: [{ productId: d.productId, quantity: 1 }], dropShip: true };
+  logCall('/checkouts/create', body, 'sample: dropShip is true for a single unit');
+  await sleep(900);
+  const checkoutId = 'chk_sample_' + body.requestId.slice(0, 8);
+  return { checkoutId, checkoutUrl: `https://arcade.ai/checkout/${checkoutId} (sample)` };
+}
+
+async function checkOrder(checkoutId) {
+  const out = $('#orderStatus');
+  out.textContent = 'Asking Arcade…';
+  try {
+    if (!state.live) {
+      logCall('/orders/get', { checkoutId }, 'sample: order appears after payment');
+      await sleep(600);
+      out.innerHTML = '<span style="color:var(--warn)">Awaiting payment (sample). In live mode this shows the Arcade order once payment is complete.</span>';
+      return;
+    }
+    const o = await api('order', { checkoutId });
+    const status = o.order?.status || o.order?.state || 'found';
+    out.innerHTML = `<span style="color:var(--ok)">Order status: ${esc(status)}</span>`;
+  } catch (err) { out.innerHTML = `<span class="err">${esc(err.message)}</span>`; }
+}
+
+/* ---------- Drawing: gems and jewelry ---------- */
+function shade(hex, amt) { const n = parseInt(hex.slice(1), 16); const f = c => Math.max(0, Math.min(255, c + amt));
+  return `rgb(${f(n >> 16)},${f(n >> 8 & 255)},${f(n & 255)})`; }
+function metalGrad(ctx, x0, y0, x1, y1, metal) {
+  const g = ctx.createLinearGradient(x0, y0, x1, y1);
+  const [a, b, c] = /rose/.test(metal) ? ['#f6c7b1', '#c27c62', '#7d4535'] : /bronze/.test(metal) ? ['#e3ae73', '#9c6532', '#56330f'] : ['#f9e2a6', '#d4a24c', '#7f5718'];
+  g.addColorStop(0, a); g.addColorStop(0.5, b); g.addColorStop(1, c); return g;
+}
+function drawGem(ctx, x, y, r, color, halo) {
+  ctx.save();
+  if (halo) { const h = ctx.createRadialGradient(x, y, r * 0.2, x, y, r * 1.5); h.addColorStop(0, color + 'aa'); h.addColorStop(1, 'transparent'); ctx.fillStyle = h; ctx.fillRect(x - r * 1.6, y - r * 1.6, r * 3.2, r * 3.2); }
+  const pts = 8, outer = [], inner = [];
+  for (let i = 0; i < pts; i++) { const a = Math.PI * 2 * i / pts - Math.PI / 2; outer.push([x + Math.cos(a) * r, y + Math.sin(a) * r]); inner.push([x + Math.cos(a) * r * 0.55, y + Math.sin(a) * r * 0.55]); }
+  for (let i = 0; i < pts; i++) {
+    const j = (i + 1) % pts; ctx.beginPath(); ctx.moveTo(...outer[i]); ctx.lineTo(...outer[j]); ctx.lineTo(...inner[j]); ctx.lineTo(...inner[i]); ctx.closePath();
+    ctx.fillStyle = shade(color, i % 2 ? -40 : (i < 3 ? 50 : 0)); ctx.fill();
+  }
+  ctx.beginPath(); inner.forEach((p, i) => i ? ctx.lineTo(...p) : ctx.moveTo(...p)); ctx.closePath();
+  const t = ctx.createLinearGradient(x - r, y - r, x + r, y + r); t.addColorStop(0, shade(color, 70)); t.addColorStop(1, shade(color, -20)); ctx.fillStyle = t; ctx.fill();
+  ctx.strokeStyle = 'rgba(255,240,220,.35)'; ctx.lineWidth = Math.max(1, r / 40);
+  for (let i = 0; i < pts; i++) { ctx.beginPath(); ctx.moveTo(...outer[i]); ctx.lineTo(...inner[i]); ctx.stroke(); }
+  ctx.beginPath(); ctx.ellipse(x - r * 0.25, y - r * 0.3, r * 0.18, r * 0.08, -0.6, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fill();
+  ctx.restore();
+}
+function drawPiece(canvas, o) {
+  const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height, cx = W / 2, s = W / 480;
+  ctx.clearRect(0, 0, W, H);
+  const glow = ctx.createRadialGradient(cx, H * 0.48, 10 * s, cx, H * 0.48, W * 0.55); glow.addColorStop(0, o.color + '55'); glow.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+  ctx.lineCap = 'round';
+  if (o.piece === 'ring') {
+    ctx.lineWidth = 26 * s; ctx.strokeStyle = metalGrad(ctx, cx - 120 * s, 0, cx + 120 * s, 0, o.metal);
+    ctx.beginPath(); ctx.ellipse(cx, H * 0.6, 118 * s, 100 * s, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.lineWidth = 3 * s; ctx.strokeStyle = 'rgba(255,240,210,.5)'; ctx.beginPath(); ctx.ellipse(cx, H * 0.6, 118 * s, 100 * s, 0, Math.PI * 1.1, Math.PI * 1.45); ctx.stroke();
+    ctx.fillStyle = metalGrad(ctx, cx - 60 * s, 0, cx + 60 * s, 0, o.metal);
+    [-1, 1].forEach(k => { ctx.beginPath(); ctx.arc(cx + k * 42 * s, H * 0.33, 34 * s, 0, Math.PI * 2); ctx.globalAlpha = .9; ctx.fill(); ctx.globalAlpha = 1; });
+    ctx.beginPath(); ctx.arc(cx, H * 0.36, 62 * s, 0, Math.PI * 2); ctx.fill();
+    drawGem(ctx, cx, H * 0.36, 52 * s, o.color, true);
+  } else if (o.piece === 'necklace') {
+    for (let i = 0; i <= 40; i++) { const a = Math.PI * (0.06 + 0.88 * i / 40); const x = cx - Math.cos(a) * 200 * s, y = -20 * s + Math.sin(a) * 250 * s;
+      ctx.beginPath(); ctx.ellipse(x, y, 7 * s, 4.5 * s, a, 0, Math.PI * 2); ctx.lineWidth = 2.5 * s; ctx.strokeStyle = metalGrad(ctx, x - 8, y, x + 8, y, o.metal); ctx.stroke(); }
+    ctx.lineWidth = 2 * s; ctx.strokeStyle = o.color === '#3a2c28' ? '#d4a24c' : shade(o.color, 40);
+    for (let i = 0; i < 24; i++) { const a = Math.PI * 2 * i / 24; ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * 92 * s, H * 0.64 + Math.sin(a) * 92 * s); ctx.lineTo(cx + Math.cos(a) * (i % 2 ? 108 : 122) * s, H * 0.64 + Math.sin(a) * (i % 2 ? 108 : 122) * s); ctx.stroke(); }
+    ctx.fillStyle = metalGrad(ctx, cx - 90 * s, 0, cx + 90 * s, 0, o.metal);
+    ctx.beginPath(); ctx.arc(cx, H * 0.64, 84 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, H * 0.64 - 92 * s, 12 * s, 0, Math.PI * 2); ctx.lineWidth = 6 * s; ctx.strokeStyle = metalGrad(ctx, cx - 12, 0, cx + 12, 0, o.metal); ctx.stroke();
+    drawGem(ctx, cx, H * 0.64, 66 * s, o.color, o.color !== '#3a2c28');
+    if (o.intent === 'protection') { ctx.beginPath(); ctx.ellipse(cx, H * 0.64, 40 * s, 20 * s, 0, 0, Math.PI * 2); ctx.lineWidth = 3 * s; ctx.strokeStyle = '#f2c46d'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, H * 0.64, 11 * s, 0, Math.PI * 2); ctx.fillStyle = '#f2c46d'; ctx.fill(); }
+  } else {
+    const n = 22;
+    for (let i = 0; i < n; i++) { const a = Math.PI * 2 * i / n; const x = cx + Math.cos(a) * 150 * s, y = H * 0.52 + Math.sin(a) * 92 * s;
+      if (Math.abs(a - Math.PI / 2) < 0.2) continue;
+      ctx.beginPath(); ctx.arc(x, y, (i % 3 === 0 ? 11 : 7) * s, 0, Math.PI * 2);
+      ctx.fillStyle = i % 3 === 0 ? shade(o.color, 20) : metalGrad(ctx, x - 8, y - 8, x + 8, y + 8, o.metal); ctx.fill();
+      if (i % 3 === 0) { ctx.beginPath(); ctx.arc(x - 3 * s, y - 3 * s, 3 * s, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.fill(); } }
+    ctx.fillStyle = metalGrad(ctx, cx - 50 * s, 0, cx + 50 * s, 0, o.metal);
+    ctx.beginPath(); ctx.arc(cx, H * 0.52 + 92 * s, 46 * s, 0, Math.PI * 2); ctx.fill();
+    drawGem(ctx, cx, H * 0.52 + 92 * s, 38 * s, o.color, true);
+    ctx.fillStyle = '#ffe6b0';
+    for (let i = 0; i < 7; i++) { const x = cx - 120 * s + i * 40 * s, y = H * 0.2 + Math.sin(i * 1.7) * 26 * s; ctx.beginPath(); ctx.arc(x, y, 2.6 * s, 0, Math.PI * 2); ctx.fill(); }
+    ctx.strokeStyle = 'rgba(255,230,176,.35)'; ctx.lineWidth = 1 * s; ctx.beginPath();
+    for (let i = 0; i < 7; i++) { const x = cx - 120 * s + i * 40 * s, y = H * 0.2 + Math.sin(i * 1.7) * 26 * s; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke();
+  }
+}
+
+/* ---------- The orb ---------- */
+const orbFx = { speak: 0, gaze: 0 };
+(function orb() {
+  const c = $('#orb'), ctx = c.getContext('2d');
+  let W = 0, dpr = 1;
+  const motes = Array.from({ length: 220 }, (_, i) => ({ r: Math.sqrt(Math.random()) * 0.9, a: Math.random() * Math.PI * 2, s: 0.0015 + Math.random() * 0.004, z: Math.random(), hue: Math.random() }));
+  function size() { dpr = Math.min(2, devicePixelRatio || 1); W = c.clientWidth; c.width = W * dpr; c.height = W * dpr; }
+  new ResizeObserver(size).observe(c); size();
+  let t = 0;
+  function frame() {
+    t += 1; orbFx.speak *= 0.985;
+    const R = W * 0.42 * dpr, cx = c.width / 2, cy = c.height / 2, energy = 0.55 + orbFx.speak * 0.35 + orbFx.gaze * 0.6;
+    ctx.clearRect(0, 0, c.width, c.height);
+    const aura = ctx.createRadialGradient(cx, cy, R * 0.7, cx, cy, R * 1.22);
+    aura.addColorStop(0, `rgba(244,140,70,${0.32 * energy})`); aura.addColorStop(1, 'rgba(244,140,70,0)');
+    ctx.fillStyle = aura; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
+    const body = ctx.createRadialGradient(cx - R * 0.25, cy - R * 0.3, R * 0.05, cx, cy, R);
+    body.addColorStop(0, '#5a2a18'); body.addColorStop(0.55, '#2a120a'); body.addColorStop(1, '#120705');
+    ctx.fillStyle = body; ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
+    const core = ctx.createRadialGradient(cx, cy + R * 0.08, 0, cx, cy, R * (0.55 + 0.08 * Math.sin(t / 50)));
+    core.addColorStop(0, `rgba(255,190,110,${0.55 * energy})`); core.addColorStop(0.5, `rgba(224,98,58,${0.28 * energy})`); core.addColorStop(1, 'rgba(224,98,58,0)');
+    ctx.fillStyle = core; ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
+    ctx.globalCompositeOperation = 'lighter';
+    for (const m of motes) {
+      if (!reduceMotion) m.a += m.s * (1 + orbFx.gaze * 3 + orbFx.speak);
+      const x = cx + Math.cos(m.a) * m.r * R, y = cy + Math.sin(m.a * 1.3) * m.r * R * 0.55 + Math.sin(t / 90 + m.z * 6) * R * 0.06;
+      const sz = (0.6 + m.z * 1.8) * dpr;
+      ctx.fillStyle = m.hue < 0.6 ? `rgba(255,${170 + m.z * 60 | 0},${90 + m.z * 50 | 0},${0.35 + m.z * 0.5})` : `rgba(240,140,${120 + m.z * 40 | 0},${0.3 + m.z * 0.4})`;
+      ctx.beginPath(); ctx.arc(x, y, sz, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.lineWidth = 1.5 * dpr; ctx.strokeStyle = 'rgba(255,210,150,.35)'; ctx.stroke();
+    const sheen = ctx.createRadialGradient(cx - R * 0.42, cy - R * 0.48, 0, cx - R * 0.42, cy - R * 0.48, R * 0.42);
+    sheen.addColorStop(0, 'rgba(255,245,230,.38)'); sheen.addColorStop(1, 'rgba(255,245,230,0)');
+    ctx.fillStyle = sheen; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+    if (!reduceMotion) requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ---------- Boot ---------- */
+async function detectLive() {
+  try {
+    const r = await fetch(API_BASE + 'health', { cache: 'no-store' });
+    const j = await r.json();
+    state.live = !!j.live;
+  } catch { state.live = false; }
+  const b = $('#modeBanner');
+  b.classList.toggle('live', state.live);
+  $('#modeText').textContent = state.live ? 'Live mode. Talismans are designed and ordered through the Arcade API.'
+    : 'Sample data mode. Arcade design and order calls are simulated. Add an Arcade API key on the server for live designs and orders.';
+}
+renderAltar();
+detectLive();
+</script>

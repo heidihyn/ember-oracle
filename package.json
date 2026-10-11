@@ -1,0 +1,12 @@
+{
+  "name": "ember-oracle",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A crystal ball fortune teller demo that designs and orders talisman jewelry with the Arcade API.",
+  "scripts": {
+    "start": "node server.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "engines": { "node": ">=18" }
+}

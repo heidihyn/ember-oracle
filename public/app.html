@@ -1,4 +1,5 @@
 <title>The Ember Oracle</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2714%27 r=%2711%27 fill=%27%23e0623a%27/%3E%3Ccircle cx=%2712%27 cy=%2710%27 r=%273%27 fill=%27%23ffe0b8%27/%3E%3Crect x=%279%27 y=%2726%27 width=%2714%27 height=%274%27 fill=%27%23e8c27a%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500&family=Martian+Mono:wght@400&display=swap">
@@ -797,15 +798,16 @@ const orbFx = { speak: 0, gaze: 0 };
 
 /* ---------- Boot ---------- */
 async function detectLive() {
+  let why = 'This host has no Arcade server, so design and order calls are simulated.';
   try {
     const r = await fetch(API_BASE + 'health', { cache: 'no-store' });
     const j = await r.json();
     state.live = !!j.live;
+    if (!state.live) why = 'The Arcade server is running but ARCADE_API_KEY is not set, so design and order calls are simulated.';
   } catch { state.live = false; }
   const b = $('#modeBanner');
   b.classList.toggle('live', state.live);
-  $('#modeText').textContent = state.live ? 'Live mode. Talismans are designed and ordered through the Arcade API.'
-    : 'Sample data mode. Arcade design and order calls are simulated. Add an Arcade API key on the server for live designs and orders.';
+  $('#modeText').textContent = state.live ? 'Live mode. Talismans are designed and ordered through the Arcade API.' : `Sample data mode. ${why}`;
 }
 renderAltar();
 detectLive();

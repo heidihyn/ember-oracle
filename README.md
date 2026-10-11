@@ -34,7 +34,7 @@ in sample data mode. For live designs and orders, use the Vercel setup below (or
 1. In Vercel, choose **Add New → Project** and import this GitHub repo. Settings come from
    `vercel.json` (build `node scripts/build.mjs`, output `public`), so leave the framework as "Other".
 2. Add `ARCADE_API_KEY` under **Environment Variables**, then deploy.
-3. `api/proxy.mjs` answers `/api/*`. The banner at the top of the page says "Live mode" when the key is set.
+3. `api/proxy.js` answers `/api/*`. The banner at the top of the page says "Live mode" when the key is set.
 
 ## Deploy on Netlify
 
@@ -76,6 +76,6 @@ The key stays on the server. The browser only talks to `/api/health`, `/api/desi
   hosted artifact; `scripts/build.mjs` wraps it into `public/index.html`.
 - `lib/arcade.mjs`: the Arcade proxy, shared by both servers.
 - `server.mjs`: local server.
-- `api/proxy.mjs` and `vercel.json`: Vercel hosting.
+- `api/proxy.js` and `vercel.json`: Vercel hosting.
 - `netlify/functions/api.mjs` and `netlify.toml`: Netlify hosting.
 - `index.html` and `.nojekyll`: GitHub Pages (sample data mode).
